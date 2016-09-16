@@ -9,8 +9,6 @@ module Type.And where
 
 --------------------------------------------------------------------------------
 import           Data.Kind
-import           Data.Proxy
-import           Data.Type.Bool
 import           Data.Type.Equality
 import           GHC.TypeLits
 --------------------------------------------------------------------------------
@@ -23,7 +21,7 @@ infixr 6 :&
 type family NotContains a b :: Constraint where
   NotContains a (b :& c) = (NotContains a b, NotContains a c)
   NotContains (a :& b) c = (NotContains a b, NotContains a c)
-  NotContains a b        = (a == b) ~ False
+  NotContains a b        = (a == b) ~ 'False
 
 type family IsUnique (a :: *) :: Constraint where
   IsUnique (a :& b) = (NotContains a b, IsUnique b)
@@ -35,8 +33,7 @@ type family Length (a :: *) :: Nat where
 
 --------------------------------------------------------------------------------
 
-requiresUnique :: IsUnique a => Proxy a -> ()
-requiresUnique _ = ()
+-- requiresUnique :: IsUnique a => Proxy a -> ()
+-- requiresUnique _ = ()
 
-tests = requiresUnique (Proxy :: Proxy ((Proxy "utku") :& (Proxy "demir")))
-
+-- tests = requiresUnique (Proxy :: Proxy ((Proxy "utku") :& (Proxy "demir")))

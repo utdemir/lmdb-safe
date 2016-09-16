@@ -25,6 +25,7 @@ library
                   , foldl
                   , pipes
                   , pipes-concurrency
+                  , pointed
   hs-source-dirs:   src
   default-language: Haskell2010
 
@@ -41,6 +42,8 @@ test-suite test
                 , bytestring
                 , directory
                 , unix
+                , pipes
+                , time
 
 benchmark benchmarks
   type:             exitcode-stdio-1.0

@@ -1,6 +1,6 @@
 { mkDerivation, base, bytestring, cereal, directory, foldl, hspec
-, HUnit, lmdb, mtl, pipes, pipes-concurrency, QuickCheck, safecopy
-, stdenv, unix
+, HUnit, lmdb, mtl, pipes, pipes-concurrency, pointed, QuickCheck
+, safecopy, stdenv, unix
 }:
 mkDerivation {
   pname = "lmdb-safe";
@@ -8,7 +8,7 @@ mkDerivation {
   src = ./.;
   libraryHaskellDepends = [
     base bytestring cereal foldl lmdb mtl pipes pipes-concurrency
-    safecopy
+    pointed safecopy
   ];
   testHaskellDepends = [
     base bytestring directory hspec HUnit QuickCheck unix

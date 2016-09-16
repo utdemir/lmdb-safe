@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE TypeApplications     #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE TypeApplications    #-}
 
 module Database.LMDB.Safe.Instances where
 
@@ -8,6 +8,7 @@ module Database.LMDB.Safe.Instances where
 import qualified Data.ByteString        as BS
 import qualified Data.ByteString.Lazy   as BL
 import qualified Data.ByteString.Unsafe as BS
+import           Data.Copointed
 import           Data.Int
 import           Data.SafeCopy
 import           Data.Serialize
@@ -26,6 +27,15 @@ instance FromLMDB BS.ByteString where fromLMDB = fmap Just . BS.packCStringLen
 
 instance ToLMDB   BL.ByteString where toLMDB   = toLMDB . BL.toStrict
 instance FromLMDB BL.ByteString where fromLMDB = fmap (fmap BL.fromStrict) . fromLMDB
+
+newtype SafeCopyLMDB a = SafeCopyLMDB a
+instance Copointed SafeCopyLMDB where copoint (SafeCopyLMDB a) = a
+
+instance SafeCopy a => ToLMDB (SafeCopyLMDB a) where
+  toLMDB = safeCopyToLMDB . copoint
+
+instance SafeCopy a => FromLMDB (SafeCopyLMDB a) where
+  fromLMDB = fmap (fmap SafeCopyLMDB) . safeCopyFromLMDB
 
 -- not using default storable instance here, LMDB doesn't accept empty keys
 instance ToLMDB   () where toLMDB   () = toLMDB True
@@ -58,11 +68,11 @@ instance FromLMDB String  where fromLMDB = serializeFromLMDB
 instance ToLMDB   Integer where toLMDB   = serializeToLMDB
 instance FromLMDB Integer where fromLMDB = serializeFromLMDB
 
-instance ToLMDB   Float   where toLMDB   = serializeToLMDB
-instance FromLMDB Float   where fromLMDB = serializeFromLMDB
+instance ToLMDB   Float   where toLMDB   = storableToLMDB
+instance FromLMDB Float   where fromLMDB = storableFromLMDB
 
-instance ToLMDB   Double  where toLMDB   = serializeToLMDB
-instance FromLMDB Double  where fromLMDB = serializeFromLMDB
+instance ToLMDB   Double  where toLMDB   = storableToLMDB
+instance FromLMDB Double  where fromLMDB = storableFromLMDB
 
 instance ToLMDB   Int     where toLMDB   = storableToLMDB
 instance FromLMDB Int     where fromLMDB = storableFromLMDB
@@ -90,5 +100,4 @@ instance FromLMDB Word32  where fromLMDB = storableFromLMDB
 
 instance ToLMDB   Word64  where toLMDB   = storableToLMDB
 instance FromLMDB Word64  where fromLMDB = storableFromLMDB
-
 
