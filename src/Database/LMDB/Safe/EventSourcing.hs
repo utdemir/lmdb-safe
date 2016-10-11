@@ -59,13 +59,14 @@ type EventSourceSchema ev st
 withEventSource
   :: (SafeCopy event, SafeCopy state)
   => FilePath
+  -> [MDB_EnvFlag]
   -> state
   -> (state -> (EventId, event) -> state)
   -> (Pipe event state IO bottom -> IO b)
   -> IO b
-withEventSource path init step act
+withEventSource path flags init step act
   = withLMDB
-      (Config path (5*1000*1000*1000) 2 [])
+      (Config path (5*1000*1000*1000) 2 flags)
       (Proxy :: Proxy (EventSourceSchema event state))
     $ \transaction (events :& storedState) ->
         let apply eid ev = S.modify' (\s -> step s (eid, ev)) >> S.get

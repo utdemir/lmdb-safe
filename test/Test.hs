@@ -170,18 +170,18 @@ main = hspec . parallel $ do
 
   describe "Database.LMDB.Safe.EventSourcing" $ do
     specify "publish events" $ withTmpDir $ \tmp -> do
-      withEventSource tmp (0 :: Integer) (\st (eid, i) -> st + i) $ \es -> do
+      withEventSource tmp [] (0 :: Integer) (\st (eid, i) -> st + i) $ \es -> do
         r <- runEffect $ (undefined <$> each [1..]) >-> es >-> replicateM 5 await
         r @?= [0, 1, 3, 6, 10]
-      withEventSource tmp (0 :: Integer) (\st (eid, i) -> st + i) $ \es -> do
+      withEventSource tmp [] (0 :: Integer) (\st (eid, i) -> st + i) $ \es -> do
         r <- runEffect $ (undefined <$> each [10..]) >-> es >-> replicateM 5 await
         r @?= [10, 20, 31, 43, 56]
     specify "stored state" $ withTmpDir $ \tmp -> do
-      withEventSource tmp (0 :: Integer) (\st (eid, i) -> st + i) $ \es -> do
+      withEventSource tmp [] (0 :: Integer) (\st (eid, i) -> st + i) $ \es -> do
         r <- P.last $ each [1..5050] >-> es
         r @?= Just 12753775
         return ()
-      withEventSource tmp (0 :: Integer) (\st (eid, i) -> st + i) $ \es -> do
+      withEventSource tmp [] (0 :: Integer) (\st (eid, i) -> st + i) $ \es -> do
         r <- P.last $ return () >-> es
         r @?= Just 12753775
         return ()
